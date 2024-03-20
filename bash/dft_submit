@@ -1,0 +1,36 @@
+#!/bin/bash
+#SBATCH --partition=day
+#SBATCH --out=dft_base_small.py.out
+#SBATCH --error="slurm-%j.out"
+#SBATCH --time=01-00:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=24
+#SBATCH --mem-per-cpu=7500
+
+echo "Starting at $(date)"
+echo "Job submitted to the ${SLURM_JOB_PARTITION} partition on ${SLURM_CLUSTER_NAME}"
+echo "Job ID: ${SLURM_JOB_ID}"
+srun hostname
+
+# move files to working directory
+#mkdir -p $HOME/palmer_scratch/$SLURM_JOBID
+#cp -r $SLURM_SUBMIT_DIR/* $HOME/palmer_scratch/$SLURM_JOBID
+#cd $HOME/palmer_scratch/$SLURM_JOBID
+
+# run program
+module load miniconda OpenMPI/4.0.5-GCC-10.2.0
+conda activate pyscfenv
+#module purge
+#module load h5py/3.1.0-foss-2020b
+#module list
+
+export MKL_NUM_THREADS=$SLURM_CPUS_PER_TASK 
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK 
+srun -c $SLURM_CPUS_PER_TASK python -u dft_base_small.py
+
+# copy files back and remove files in scratch
+#rm -f
+#cp -r  $HOME/palmer_scratch/$SLURM_JOBID/* $SLURM_SUBMIT_DIR
+#rm -rf $HOME/palmer_scratch/$SLURM_JOBID
+#cd $SLURM_SUBMIT_DIR
